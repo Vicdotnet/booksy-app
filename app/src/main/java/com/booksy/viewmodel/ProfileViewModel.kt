@@ -5,8 +5,7 @@ import android.net.Uri
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.booksy.data.local.AppDatabase
-import com.booksy.data.local.UserEntity
+import com.booksy.data.local.SessionManager
 import com.booksy.data.remote.RetrofitClient
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,11 +13,17 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 
+data class UserProfile(
+    val id: String,
+    val email: String,
+    val name: String
+)
+
 class ProfileViewModel(
-    private val database: AppDatabase? = null
+    private val context: Context? = null
 ) : ViewModel() {
 
-    private val _currentUser = MutableStateFlow<UserEntity?>(null)
+    private val _currentUser = MutableStateFlow<UserProfile?>(null)
     val currentUser = _currentUser.asStateFlow()
 
     private val _profileImageUri = MutableStateFlow<Uri?>(null)
@@ -31,9 +36,18 @@ class ProfileViewModel(
 
     private fun loadUserData() {
         viewModelScope.launch {
-            database?.userDao()?.getUser()?.collect { user ->
-                _currentUser.value = user
-                user?.profileImagePath?.let { path ->
+            context?.let {
+                val sessionManager = SessionManager.getInstance(it)
+                val userId = sessionManager.getUserId()
+                val email = sessionManager.getEmail()
+                val name = sessionManager.getName()
+                val profileImage = sessionManager.getProfileImage()
+
+                if (userId != null && email != null && name != null) {
+                    _currentUser.value = UserProfile(userId, email, name)
+                }
+                
+                profileImage?.let { path ->
                     _profileImageUri.value = Uri.parse(path)
                 }
             }
@@ -48,14 +62,10 @@ class ProfileViewModel(
 
                 if (response.isSuccessful && response.body() != null) {
                     val user = response.body()!!
-                    database?.userDao()?.insertUser(
-                        UserEntity(
-                            id = user.id,
-                            email = user.email,
-                            name = user.name ?: "",
-                            token = _currentUser.value?.token ?: "",
-                            profileImagePath = _currentUser.value?.profileImagePath
-                        )
+                    _currentUser.value = UserProfile(
+                        id = user.id,
+                        email = user.email,
+                        name = user.name
                     )
                 }
             } catch (e: Exception) {
@@ -87,13 +97,9 @@ class ProfileViewModel(
 
                 val savedUri = Uri.fromFile(destinationFile)
                 _profileImageUri.value = savedUri
-
-                _currentUser.value?.let { user ->
-                    database?.userDao()?.updateProfileImage(
-                        user.id,
-                        savedUri.toString()
-                    )
-                }
+                
+                // Guardar en SessionManager para persistir entre sesiones
+                SessionManager.getInstance(context).saveProfileImage(savedUri.toString())
             } catch (e: Exception) {
                 // no hacer nada si falla
             }
@@ -102,7 +108,9 @@ class ProfileViewModel(
 
     fun logout() {
         viewModelScope.launch {
-            database?.userDao()?.deleteUser()
+            context?.let {
+                SessionManager.getInstance(it).clearSession()
+            }
         }
     }
 }

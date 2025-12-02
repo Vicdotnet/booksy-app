@@ -20,7 +20,7 @@ class CartViewModel : ViewModel() {
     private val _uiState = MutableStateFlow<CartUiState>(CartUiState.Loading)
     val uiState = _uiState.asStateFlow()
 
-    fun loadCart(userId: Long) {
+    fun loadCart(userId: String) {
         viewModelScope.launch {
             _uiState.value = CartUiState.Loading
 
@@ -42,7 +42,7 @@ class CartViewModel : ViewModel() {
         }
     }
 
-    fun removeItem(itemId: Long, userId: Long) {
+    fun removeItem(itemId: String, userId: String) {
         viewModelScope.launch {
             try {
                 RetrofitClient.api.deleteCartItem(itemId)
@@ -53,7 +53,7 @@ class CartViewModel : ViewModel() {
         }
     }
 
-    fun clearCart(userId: Long) {
+    fun clearCart(userId: String) {
         viewModelScope.launch {
             try {
                 RetrofitClient.api.clearCart(userId)

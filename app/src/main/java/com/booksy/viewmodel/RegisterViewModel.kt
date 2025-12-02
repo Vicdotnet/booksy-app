@@ -1,9 +1,9 @@
 package com.booksy.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.booksy.data.local.AppDatabase
-import com.booksy.data.local.UserEntity
+import com.booksy.data.local.SessionManager
 import com.booksy.data.models.RegisterRequest
 import com.booksy.data.remote.RetrofitClient
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +18,7 @@ sealed class RegisterUiState {
 }
 
 class RegisterViewModel(
-    private val database: AppDatabase? = null
+    private val context: Context? = null
 ) : ViewModel() {
 
     private val _name = MutableStateFlow("")
@@ -104,6 +104,11 @@ class RegisterViewModel(
     }
 
     fun register() {
+        // Prevenir multiples llamadas
+        if (_uiState.value is RegisterUiState.Loading) {
+            return
+        }
+
         validateName(_name.value)
         validateEmail(_email.value)
         validatePassword(_password.value)
@@ -131,22 +136,27 @@ class RegisterViewModel(
                 if (response.isSuccessful && response.body() != null) {
                     val authResponse = response.body()!!
 
-                    database?.userDao()?.insertUser(
-                        UserEntity(
-                            id = authResponse.userId,
-                            email = _email.value,
-                            name = _name.value,
+                    context?.let {
+                        SessionManager.getInstance(it).saveSession(
                             token = authResponse.authToken,
-                            profileImagePath = null
+                            userId = authResponse.userId,
+                            email = _email.value,
+                            name = _name.value
                         )
-                    )
+                    }
 
                     _uiState.value = RegisterUiState.Success("Registro exitoso")
                 } else {
-                    _uiState.value = RegisterUiState.Error("Error al registrar")
+                    val errorMsg = when(response.code()) {
+                        400 -> "El email ya esta registrado"
+                        else -> "Error al registrar"
+                    }
+                    _uiState.value = RegisterUiState.Error(errorMsg)
                 }
+            } catch (e: java.net.SocketTimeoutException) {
+                _uiState.value = RegisterUiState.Error("Timeout: verifica tu conexion e intenta de nuevo")
             } catch (e: Exception) {
-                _uiState.value = RegisterUiState.Error("Error de conexion: ${e.message}")
+                _uiState.value = RegisterUiState.Error("Error: ${e.message}")
             }
         }
     }

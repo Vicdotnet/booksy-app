@@ -1,9 +1,9 @@
 package com.booksy.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.booksy.data.local.AppDatabase
-import com.booksy.data.local.UserEntity
+import com.booksy.data.local.SessionManager
 import com.booksy.data.models.LoginRequest
 import com.booksy.data.remote.RetrofitClient
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +18,7 @@ sealed class LoginUiState {
 }
 
 class LoginViewModel(
-    private val database: AppDatabase? = null
+    private val context: Context? = null
 ) : ViewModel() {
 
     private val _email = MutableStateFlow("")
@@ -84,15 +84,14 @@ class LoginViewModel(
                 if (response.isSuccessful && response.body() != null) {
                     val authResponse = response.body()!!
 
-                    database?.userDao()?.insertUser(
-                        UserEntity(
-                            id = authResponse.userId,
-                            email = _email.value,
-                            name = "",
+                    context?.let {
+                        SessionManager.getInstance(it).saveSession(
                             token = authResponse.authToken,
-                            profileImagePath = null
+                            userId = authResponse.userId,
+                            email = _email.value,
+                            name = ""
                         )
-                    )
+                    }
 
                     _uiState.value = LoginUiState.Success("Login exitoso")
                 } else {
