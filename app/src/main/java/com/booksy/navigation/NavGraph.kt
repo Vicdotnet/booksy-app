@@ -1,12 +1,15 @@
 package com.booksy.navigation
 
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.booksy.data.local.AppDatabase
-import com.booksy.data.local.UserEntity
+import androidx.navigation.navArgument
+import androidx.navigation.NavType
+import com.booksy.data.local.SessionManager
+import com.booksy.ui.screens.BookDetailScreen
 import com.booksy.ui.screens.CartScreen
 import com.booksy.ui.screens.LoginScreen
 import com.booksy.ui.screens.RegisterScreen
@@ -56,6 +59,9 @@ fun NavGraph(
                 },
                 onNavigateToCart = {
                     navController.navigate(Screen.Cart.route)
+                },
+                onBookClick = { bookId ->
+                    navController.navigate(Screen.BookDetail.createRoute(bookId))
                 }
             )
         }
@@ -64,6 +70,22 @@ fun NavGraph(
             CartScreen(
                 onNavigateBack = {
                     navController.popBackStack()
+                }
+            )
+        }
+
+        composable(
+            route = "book_detail/{bookId}",
+            arguments = listOf(navArgument("bookId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val bookId = backStackEntry.arguments?.getString("bookId") ?: return@composable
+            BookDetailScreen(
+                bookId = bookId,
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onNavigateToCart = {
+                    navController.navigate(Screen.Cart.route)
                 }
             )
         }
@@ -84,18 +106,16 @@ fun NavGraph(
 }
 
 @Composable
-fun BooksyApp(appDatabase: AppDatabase) {
-    val scope = rememberCoroutineScope()
+fun BooksyApp() {
+    val context = LocalContext.current
     var startDestination by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
-        scope.launch {
-            val user = appDatabase.userDao().getUserOnce()
-            startDestination = if (user != null) {
-                Screen.Home.route
-            } else {
-                Screen.Login.route
-            }
+        val isLoggedIn = SessionManager.getInstance(context).isLoggedIn()
+        startDestination = if (isLoggedIn) {
+            Screen.Home.route
+        } else {
+            Screen.Login.route
         }
     }
 
