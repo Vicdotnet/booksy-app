@@ -16,9 +16,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // Para emulador: http://10.0.2.2:8080/
-        // Para celular fisico: usa tu IP de WiFi
-        buildConfigField("String", "API_BASE_URL", "\"http://10.31.56.142:8080/\"")
+        // Backend desplegado en Render
+        buildConfigField("String", "API_BASE_URL", "\"https://booksy-api-twu9.onrender.com/\"")
     }
 
     compileOptions {
