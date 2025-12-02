@@ -11,8 +11,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.booksy.data.local.AppDatabase
+import com.booksy.data.local.SessionManager
 import com.booksy.viewmodel.CartViewModel
 import com.booksy.viewmodel.CartUiState
 import kotlinx.coroutines.launch
@@ -24,10 +25,13 @@ fun CartScreen(
     viewModel: CartViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val userId = 1L // usuario de prueba
+    val context = LocalContext.current
+    val userId = SessionManager.getInstance(context).getUserId()
 
     LaunchedEffect(Unit) {
-        viewModel.loadCart(userId)
+        userId?.let {
+            viewModel.loadCart(it)
+        }
     }
 
     Scaffold(
@@ -96,14 +100,16 @@ fun CartScreen(
                                                     style = MaterialTheme.typography.bodyMedium
                                                 )
                                                 Text(
-                                                    text = "$${item.pricePerUnit}",
+                                                    text = "$${String.format("%,.0f", item.pricePerUnit).replace(",", ".")}",
                                                     style = MaterialTheme.typography.bodySmall
                                                 )
                                             }
                                             IconButton(
                                                 onClick = {
                                                     item.id?.let { id ->
-                                                        viewModel.removeItem(id, userId)
+                                                        userId?.let { uid ->
+                                                            viewModel.removeItem(id, uid)
+                                                        }
                                                     }
                                                 }
                                             ) {
@@ -126,27 +132,12 @@ fun CartScreen(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        Text("Subtotal:")
-                                        Text("$${state.total.subtotal}")
-                                    }
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text("Comision (10%):")
-                                        Text("$${state.total.commission}")
-                                    }
-                                    Divider(modifier = Modifier.padding(vertical = 8.dp))
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
                                         Text(
                                             text = "Total:",
                                             style = MaterialTheme.typography.titleLarge
                                         )
                                         Text(
-                                            text = "$${state.total.total}",
+                                            text = "$${String.format("%,.0f", state.total.subtotal).replace(",", ".")}",
                                             style = MaterialTheme.typography.titleLarge
                                         )
                                     }
@@ -155,7 +146,9 @@ fun CartScreen(
 
                                     Button(
                                         onClick = {
-                                            viewModel.clearCart(userId)
+                                            userId?.let {
+                                                viewModel.clearCart(it)
+                                            }
                                         },
                                         modifier = Modifier.fillMaxWidth()
                                     ) {

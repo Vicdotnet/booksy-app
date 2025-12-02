@@ -12,9 +12,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.booksy.data.models.Book
 import com.booksy.viewmodel.BooksUiState
 import com.booksy.viewmodel.BooksViewModel
@@ -24,13 +26,14 @@ import com.booksy.viewmodel.BooksViewModel
 fun HomeScreen(
     onNavigateToProfile: () -> Unit,
     onNavigateToCart: () -> Unit = {},
+    onBookClick: (String) -> Unit = {},
     viewModel: BooksViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     val selectedCategory by viewModel.selectedCategory.collectAsState()
 
-    val categories = listOf("todas", "ficcion", "infantil", "poesia")
+    val categories = listOf("todas", "Ficción", "Clásicos", "Poesía")
 
     Scaffold(
         topBar = {
@@ -45,7 +48,7 @@ fun HomeScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFF1976D2),
+                    containerColor = Color(0xFF6200ea),
                     titleContentColor = Color.White,
                     actionIconContentColor = Color.White
                 )
@@ -64,7 +67,7 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                placeholder = { Text("buscar por titulo o autor") },
+                placeholder = { Text("Buscar por título o autor...") },
                 singleLine = true
             )
 
@@ -100,7 +103,10 @@ fun HomeScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(state.books) { book ->
-                            BookItem(book = book)
+                            BookItem(
+                                book = book,
+                                onClick = { onBookClick(book.id) }
+                            )
                         }
                     }
                 }
@@ -120,48 +126,72 @@ fun HomeScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookItem(book: Book) {
+fun BookItem(book: Book, onClick: () -> Unit = {}) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        onClick = onClick
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            modifier = Modifier.padding(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = book.title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+            // Imagen del libro
+            AsyncImage(
+                model = book.imageUrl,
+                contentDescription = book.title,
+                modifier = Modifier
+                    .width(80.dp)
+                    .height(120.dp),
+                contentScale = ContentScale.Crop
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = "Por: ${book.author}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.Gray
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            // Info del libro
+            Column(
+                modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = "$ ${String.format("%,.0f", book.price)}",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Color(0xFF1976D2),
-                    fontWeight = FontWeight.Bold
+                    text = book.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
                 )
 
+                Spacer(modifier = Modifier.height(4.dp))
+
                 Text(
-                    text = book.category,
-                    style = MaterialTheme.typography.bodySmall,
+                    text = book.author,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "$ ${String.format("%,.0f", book.price).replace(",", ".")}",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color(0xFF6200ea),
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Surface(
+                        color = Color(0xFFE8EAF6),
+                        shape = MaterialTheme.shapes.extraSmall
+                    ) {
+                        Text(
+                            text = book.category,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color(0xFF6200ea),
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                }
             }
         }
     }
