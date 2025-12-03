@@ -1,5 +1,6 @@
 package com.booksy.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -34,11 +35,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.booksy.data.local.AppDatabase
+import com.booksy.R
 import com.booksy.viewmodel.RegisterUiState
 import com.booksy.viewmodel.RegisterViewModel
 
@@ -48,8 +50,7 @@ fun RegisterScreen(
     onNavigateToLogin: () -> Unit
 ) {
     val context = LocalContext.current
-    val database = remember { AppDatabase.getDatabase(context) }
-    val viewModel = remember { RegisterViewModel(database) }
+    val viewModel = remember { RegisterViewModel(context) }
 
     val uiState by viewModel.uiState.collectAsState()
     val userName by viewModel.name.collectAsState()
@@ -81,13 +82,13 @@ fun RegisterScreen(
     ) {
         Spacer(modifier = Modifier.height(32.dp))
 
-        Text(
-            text = "Crear Cuenta",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
+        Image(
+            painter = painterResource(id = R.drawable.logo_booksy),
+            contentDescription = "Booksy Logo",
+            modifier = Modifier.size(120.dp)
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Text(
             text = "Regístrate en Booksy",
@@ -96,10 +97,16 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        Text(
+            text = "Nombre completo",
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(4.dp))
         OutlinedTextField(
             value = userName,
             onValueChange = { viewModel.onNameChange(it) },
-            label = { Text("Nombre completo") },
+            placeholder = { Text("Juan Pérez") },
             isError = nameError != null,
             supportingText = {
                 nameError?.let {
@@ -115,10 +122,16 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        Text(
+            text = "Email",
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(4.dp))
         OutlinedTextField(
             value = userEmail,
             onValueChange = { viewModel.onEmailChange(it) },
-            label = { Text("Email") },
+            placeholder = { Text("tu@email.com") },
             isError = emailError != null,
             supportingText = {
                 emailError?.let {
@@ -134,10 +147,16 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        Text(
+            text = "Contraseña",
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(4.dp))
         OutlinedTextField(
             value = userPassword,
             onValueChange = { viewModel.onPasswordChange(it) },
-            label = { Text("Contraseña") },
+            placeholder = { Text("••••••••") },
             visualTransformation = if (passwordVisible)
                 VisualTransformation.None
             else
@@ -168,10 +187,16 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        Text(
+            text = "Confirmar contraseña",
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(4.dp))
         OutlinedTextField(
             value = confirmPassword,
             onValueChange = { viewModel.onConfirmPasswordChange(it) },
-            label = { Text("Confirmar contraseña") },
+            placeholder = { Text("••••••••") },
             visualTransformation = if (confirmPasswordVisible)
                 VisualTransformation.None
             else

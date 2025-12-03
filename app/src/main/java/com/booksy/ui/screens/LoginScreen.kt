@@ -1,5 +1,6 @@
 package com.booksy.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -7,10 +8,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import com.booksy.data.local.AppDatabase
+import com.booksy.R
 import com.booksy.viewmodel.LoginUiState
 import com.booksy.viewmodel.LoginViewModel
 
@@ -20,8 +22,7 @@ fun LoginScreen(
     onNavigateToRegister: () -> Unit
 ) {
     val context = LocalContext.current
-    val database = remember { AppDatabase.getDatabase(context) }
-    val viewModel = remember { LoginViewModel(database) }
+    val viewModel = remember { LoginViewModel(context) }
 
     val uiState by viewModel.uiState.collectAsState()
     val userEmail by viewModel.email.collectAsState()
@@ -43,14 +44,13 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = "Booksy",
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF1976D2)
+        Image(
+            painter = painterResource(id = R.drawable.logo_booksy),
+            contentDescription = "Booksy Logo",
+            modifier = Modifier.size(120.dp)
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Text(
             text = "Inicia sesión",
@@ -59,10 +59,16 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        Text(
+            text = "Email",
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(4.dp))
         OutlinedTextField(
             value = userEmail,
             onValueChange = { viewModel.onEmailChange(it) },
-            label = { Text("Email") },
+            placeholder = { Text("tu@email.com") },
             isError = emailError != null,
             supportingText = {
                 emailError?.let {
@@ -78,10 +84,16 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        Text(
+            text = "Contraseña",
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(4.dp))
         OutlinedTextField(
             value = userPassword,
             onValueChange = { viewModel.onPasswordChange(it) },
-            label = { Text("Contraseña") },
+            placeholder = { Text("••••••••") },
             visualTransformation = PasswordVisualTransformation(),
             isError = passwordError != null,
             supportingText = {
