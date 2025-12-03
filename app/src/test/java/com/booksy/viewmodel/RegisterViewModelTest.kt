@@ -2,8 +2,6 @@ package com.booksy.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
-import com.booksy.data.local.AppDatabase
-import com.booksy.data.local.UserDao
 import com.booksy.data.remote.BooksyApi
 import com.booksy.data.remote.RetrofitClient
 import io.mockk.*
@@ -20,7 +18,7 @@ import org.junit.Assert.assertEquals
  * pruebas unitarias para registerviewmodel
  *
  * cubre:
- * - validaciones de nombre password confirmpassword
+ * - validaciones de nombre, email, password y confirmpassword
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class RegisterViewModelTest {
@@ -31,8 +29,6 @@ class RegisterViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
 
     // mocks
-    private lateinit var mockDatabase: AppDatabase
-    private lateinit var mockUserDao: UserDao
     private lateinit var mockApi: BooksyApi
 
     // system under test
@@ -42,16 +38,12 @@ class RegisterViewModelTest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
 
-        mockDatabase = mockk(relaxed = true)
-        mockUserDao = mockk(relaxed = true)
         mockApi = mockk(relaxed = true)
-
-        every { mockDatabase.userDao() } returns mockUserDao
 
         mockkObject(RetrofitClient)
         every { RetrofitClient.api } returns mockApi
 
-        viewModel = RegisterViewModel(mockDatabase)
+        viewModel = RegisterViewModel(context = null)
     }
 
     @After

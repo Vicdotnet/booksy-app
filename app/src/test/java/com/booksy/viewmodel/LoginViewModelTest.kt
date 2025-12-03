@@ -2,8 +2,6 @@ package com.booksy.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import app.cash.turbine.test
-import com.booksy.data.local.AppDatabase
-import com.booksy.data.local.UserDao
 import com.booksy.data.remote.BooksyApi
 import com.booksy.data.remote.RetrofitClient
 import io.mockk.*
@@ -20,7 +18,7 @@ import org.junit.Assert.assertEquals
  * pruebas unitarias para loginviewmodel
  *
  * cubre:
- * - validaciones de password
+ * - validaciones de email y password
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class LoginViewModelTest {
@@ -33,8 +31,6 @@ class LoginViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
 
     // mocks
-    private lateinit var mockDatabase: AppDatabase
-    private lateinit var mockUserDao: UserDao
     private lateinit var mockApi: BooksyApi
 
     // system under test
@@ -46,25 +42,29 @@ class LoginViewModelTest {
         Dispatchers.setMain(testDispatcher)
 
         // crear mocks
-        mockDatabase = mockk(relaxed = true)
-        mockUserDao = mockk(relaxed = true)
         mockApi = mockk(relaxed = true)
-
-        // configurar appdatabase mock
-        every { mockDatabase.userDao() } returns mockUserDao
 
         // configurar retrofitclient mock
         mockkObject(RetrofitClient)
         every { RetrofitClient.api } returns mockApi
 
-        // crear viewmodel
-        viewModel = LoginViewModel(mockDatabase)
+        // crear viewmodel (sin context para tests)
+        viewModel = LoginViewModel(context = null)
     }
 
     @After
     fun teardown() {
         Dispatchers.resetMain()
         unmockkAll()
+    }
+
+    @Test
+    fun `email vacio debe mostrar error`() = runTest {
+        viewModel.onEmailChange("")
+        viewModel.emailError.test {
+            val error = awaitItem()
+            assertEquals("El email es requerido", error)
+        }
     }
 
     @Test
