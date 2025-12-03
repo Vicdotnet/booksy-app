@@ -7,19 +7,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.booksy.data.local.AppDatabase
 import com.booksy.data.remote.RetrofitClient
 import com.booksy.navigation.BooksyApp
 import com.booksy.ui.theme.BooksyTheme
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var database: AppDatabase
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        database = AppDatabase.getDatabase(applicationContext)
         RetrofitClient.initialize(applicationContext)
 
         setContent {
@@ -28,7 +24,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    BooksyApp(appDatabase = database)
+                    BooksyApp()
                 }
             }
         }

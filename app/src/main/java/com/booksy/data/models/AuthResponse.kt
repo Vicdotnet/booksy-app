@@ -7,5 +7,5 @@ data class AuthResponse(
     val authToken: String,
 
     @SerializedName("userId")
-    val userId: Long
+    val userId: String
 )

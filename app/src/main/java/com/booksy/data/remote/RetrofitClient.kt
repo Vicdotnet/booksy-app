@@ -2,8 +2,7 @@ package com.booksy.data.remote
 
 import android.content.Context
 import com.booksy.BuildConfig
-import com.booksy.data.local.AppDatabase
-import kotlinx.coroutines.runBlocking
+import com.booksy.data.local.SessionManager
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -13,18 +12,14 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
     private const val BASE_URL = BuildConfig.API_BASE_URL
-    private var appContext: Context? = null
+    private var sessionManager: SessionManager? = null
 
     fun initialize(context: Context) {
-        appContext = context.applicationContext
+        sessionManager = SessionManager.getInstance(context)
     }
 
     private val authInterceptor = Interceptor { chain ->
-        val token = appContext?.let { context ->
-            runBlocking {
-                AppDatabase.getDatabase(context).userDao().getUserOnce()?.token
-            }
-        }
+        val token = sessionManager?.getToken()
 
         val request = if (token != null) {
             chain.request().newBuilder()

@@ -47,7 +47,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import com.booksy.data.local.AppDatabase
 import com.booksy.viewmodel.ProfileViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -60,8 +59,7 @@ fun ProfileScreen(
     onNavigateBack: () -> Unit
 ) {
     val context = LocalContext.current
-    val database = remember { AppDatabase.getDatabase(context) }
-    val viewModel = remember { ProfileViewModel(database) }
+    val viewModel = remember { ProfileViewModel(context) }
 
     val currentUser by viewModel.currentUser.collectAsState()
     val profileImageUri by viewModel.profileImageUri.collectAsState()

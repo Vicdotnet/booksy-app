@@ -7,41 +7,41 @@ import retrofit2.http.*
 interface BooksyApi {
 
     // auth endpoints
-    @POST("auth/login")
+    @POST("api/auth/login")
     suspend fun login(@Body request: LoginRequest): Response<AuthResponse>
 
-    @POST("auth/signup")
+    @POST("api/auth/signup")
     suspend fun register(@Body request: RegisterRequest): Response<AuthResponse>
 
-    @GET("auth/me/{userId}")
-    suspend fun getCurrentUser(@Path("userId") userId: Long): Response<User>
+    @GET("api/auth/me/{userId}")
+    suspend fun getCurrentUser(@Path("userId") userId: String): Response<User>
 
     // books endpoints
-    @GET("books")
+    @GET("api/books")
     suspend fun getAllBooks(): Response<List<Book>>
 
-    @GET("books/{id}")
-    suspend fun getBookById(@Path("id") id: Long): Response<Book>
+    @GET("api/books/{id}")
+    suspend fun getBookById(@Path("id") id: String): Response<Book>
 
-    @GET("books/category/{category}")
+    @GET("api/books/category/{category}")
     suspend fun getBooksByCategory(@Path("category") category: String): Response<List<Book>>
 
     // cart endpoints
-    @GET("cart/user/{userId}")
-    suspend fun getCartItems(@Path("userId") userId: Long): Response<List<CartItem>>
+    @GET("api/cart/user/{userId}")
+    suspend fun getCartItems(@Path("userId") userId: String): Response<List<CartItem>>
 
-    @POST("cart")
+    @POST("api/cart")
     suspend fun addToCart(@Body cartItem: CartItem): Response<CartItem>
 
-    @PUT("cart/{id}")
-    suspend fun updateCartItem(@Path("id") id: Long, @Body request: Map<String, Int>): Response<CartItem>
+    @PUT("api/cart/{id}")
+    suspend fun updateCartItem(@Path("id") id: String, @Body request: Map<String, Int>): Response<CartItem>
 
-    @DELETE("cart/{id}")
-    suspend fun deleteCartItem(@Path("id") id: Long): Response<String>
+    @DELETE("api/cart/{id}")
+    suspend fun deleteCartItem(@Path("id") id: String): Response<String>
 
-    @GET("cart/total/{userId}")
-    suspend fun getCartTotal(@Path("userId") userId: Long): Response<CartTotal>
+    @GET("api/cart/total/{userId}")
+    suspend fun getCartTotal(@Path("userId") userId: String): Response<CartTotal>
 
-    @DELETE("cart/clear/{userId}")
-    suspend fun clearCart(@Path("userId") userId: Long): Response<String>
+    @DELETE("api/cart/clear/{userId}")
+    suspend fun clearCart(@Path("userId") userId: String): Response<String>
 }
