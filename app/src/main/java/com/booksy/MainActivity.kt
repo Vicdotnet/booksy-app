@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.booksy.data.local.AppDatabase
+import com.booksy.data.remote.RetrofitClient
 import com.booksy.navigation.BooksyApp
 import com.booksy.ui.theme.BooksyTheme
 
@@ -19,6 +20,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         database = AppDatabase.getDatabase(applicationContext)
+        RetrofitClient.initialize(applicationContext)
 
         setContent {
             BooksyTheme {

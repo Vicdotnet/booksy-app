@@ -1,6 +1,10 @@
 package com.booksy.data.remote
 
+import android.content.Context
 import com.booksy.BuildConfig
+import com.booksy.data.local.AppDatabase
+import kotlinx.coroutines.runBlocking
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -9,11 +13,36 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
     private const val BASE_URL = BuildConfig.API_BASE_URL
+    private var appContext: Context? = null
+
+    fun initialize(context: Context) {
+        appContext = context.applicationContext
+    }
+
+    private val authInterceptor = Interceptor { chain ->
+        val token = appContext?.let { context ->
+            runBlocking {
+                AppDatabase.getDatabase(context).userDao().getUserOnce()?.token
+            }
+        }
+
+        val request = if (token != null) {
+            chain.request().newBuilder()
+                .addHeader("Authorization", "Bearer $token")
+                .build()
+        } else {
+            chain.request()
+        }
+
+        chain.proceed(request)
+    }
+
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
     private val httpClient = OkHttpClient.Builder()
+        .addInterceptor(authInterceptor)
         .addInterceptor(loggingInterceptor)
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(10, TimeUnit.SECONDS)
