@@ -1,249 +1,143 @@
-# Booksy - app de catalogo de libros
+# Booksy
+
+app para buscar y comprar libros chilenos
 
 ## Integrantes
 
-- **Vicente Quezada** - diseño de interfaz, pantallas de login y home
-- **Oscar Baez** - conexion con la api, base de datos local y camara
+- **Vicente Quezada** - frontend, pantallas y navegacion
+- **Oscar Baez** - backend, api rest y tests
 
 
-## que hace la app
+## Descripcion
 
-es una app sencilla para ver y gestionar libros. se pueden:
-- crear una cuenta
-- iniciar sesion
-- ver un catalogo de libros desde el backend
-- buscar libros por titulo o autor
-- filtrar por categorias
-- buscar libros externos con google books api
-- ver carrito de compras con calculo de comision
-- cambiar la foto de perfil con la camara o galeria
-- cerrar sesion
+booksy es una aplicacion movil para android que permite ver un catalogo de libros chilenos, buscar por titulo o autor, filtrar por categorias y agregar libros al carrito.
+
+la app se conecta a un backend en la nube (render) que maneja los libros y usuarios.
 
 
-## tecnologias que usamos
+## Funcionalidades
 
-### app movil
-- **lenguaje:** kotlin
-- **ui:** jetpack compose
-- **base de datos:** room (local)
-- **api:** retrofit
-- **navegacion:** navigation compose
-- **camara:** accompanist permissions + activityresultcontracts
-- **tests:** junit, mockk, turbine
-
-### backend
-- **framework:** spring boot 3.2.0
-- **base de datos:** postgresql
-- **build:** maven
-- **arquitectura:** microservicios rest
+- **registro e inicio de sesion** - crear cuenta nueva o entrar con una existente
+- **catalogo de libros** - ver libros chilenos con imagenes y precios
+- **busqueda** - buscar libros por titulo o autor
+- **filtros** - filtrar por categoria (ficcion, clasicos, poesia)
+- **detalle del libro** - ver sinopsis completa de cada libro
+- **carrito de compras** - agregar libros y ver el total
+- **perfil de usuario** - cambiar foto de perfil con la camara
+- **cierre de sesion** - salir de la cuenta
 
 
-## como correr el proyecto
+## Tecnologias
 
-### requisitos
-- android studio
-- java 17 o superior
-- postgresql instalado
-- maven (incluido en el proyecto)
-- un celular o emulador android
+### Android
+- kotlin
+- jetpack compose (ui moderna)
+- retrofit (consumo de api)
+- coil (cargar imagenes)
+- navigation compose
+- sharedpreferences (guardar sesion)
+- junit + mockk (tests unitarios)
 
-### pasos backend
+### Backend
+- nestjs (nodejs)
+- mongodb atlas (base de datos en la nube)
+- jwt (autenticacion)
+- desplegado en render
 
-1. instalar postgresql y crear base de datos:
-```sql
-CREATE DATABASE booksy;
+
+## Instalacion
+
+### opcion 1: descargar apk (recomendado)
+
+1. ir a releases en github
+2. descargar el apk firmado
+3. instalar en tu celular android
+4. abrir la app y crear cuenta
+
+### opcion 2: compilar desde android studio
+
+1. clonar el repo
+2. abrir en android studio
+3. esperar que gradle sincronice
+4. conectar celular o usar emulador
+5. darle run
+
+**nota:** el backend ya esta desplegado en https://booksy-api-twu9.onrender.com
+
+
+## Como usar la app
+
+1. al abrir veras la pantalla de login
+2. si no tienes cuenta toca "registrate"
+3. llena tus datos y crea la cuenta
+4. ya dentro veras el catalogo de libros
+5. puedes buscar libros o filtrar por categoria
+6. toca un libro para ver su sinopsis completa
+7. agrega libros al carrito con el boton verde
+8. ve al carrito con el icono arriba a la derecha
+9. en perfil puedes cambiar tu foto
+10. cierra sesion cuando quieras
+
+
+## Estructura del codigo
+
 ```
-
-2. ir a la carpeta del backend:
-```bash
-cd booksy-backend
-```
-
-3. correr el servidor:
-```bash
-./mvnw spring-boot:run
-```
-
-el backend estara en `http://localhost:8080`
-
-### pasos app movil
-
-1. clonar el repo:
-
-2. abrirlo en android studio
-3. asegurarse que el backend este corriendo
-4. correr la app en emulador o dispositivo
-
-
-## estructura del proyecto
-
-### app movil
-
 app/src/main/java/com/booksy/
 ├── data/
-│   ├── local/          # base de datos room
-│   ├── remote/         # retrofit clients
-│   └── models/         # book, user, cart, etc
-├── ui/
-│   ├── screens/        # login, home, cart, profile
-│   └── theme/          # colores y estilos
-├── viewmodel/          # logica de negocio
-├── navigation/         # navegacion entre pantallas
-└── MainActivity.kt
+│   ├── local/SessionManager.kt        # manejo de sesion
+│   ├── remote/RetrofitClient.kt       # conexion api
+│   └── models/                        # modelos de datos
+├── ui/screens/                        # pantallas de la app
+├── viewmodel/                         # logica de negocio
+├── navigation/                        # rutas de navegacion
+└── MainActivity.kt                    # punto de entrada
+```
 
 
-### backend
+## API Backend
 
-booksy-backend/src/main/java/com/booksy/backend/
-├── controller/         # auth, book, cart
-├── model/             # entidades jpa
-├── repository/        # acceso a datos
-└── resources/
-    ├── application.properties
-    └── data.sql       # datos iniciales
+base url: `https://booksy-api-twu9.onrender.com`
 
+### endpoints principales
 
-
-## funcionalidades
-
-### login
-- valida email y contraseña (minimo 8 caracteres)
-- se conecta al backend para autenticacion
-- guarda usuario localmente
-
-### registro
-- nombre, email, contraseña y confirmacion
-- valida que todo este correcto
-- crea cuenta en el backend
-
-### catalogo (home)
-- lista de libros desde el backend
-- buscador por titulo o autor
-- filtros por categoria (ficcion, infantil, poesia)
-- integracion con google books api para buscar mas libros
-- boton para ir al carrito
-
-### carrito
-- muestra items agregados
-- calcula subtotal
-- agrega comision del 10%
-- muestra total final
-- permite eliminar items
-- boton para limpiar carrito
-
-### perfil
-- muestra nombre y correo
-- foto de perfil con camara o galeria
-- cerrar sesion
-
-
-## microservicios backend
-
-### endpoints auth
+**autenticacion**
 - `POST /auth/register` - crear cuenta
 - `POST /auth/login` - iniciar sesion
 
-### endpoints libros
+**libros**
 - `GET /books` - obtener todos los libros
-- `GET /books/{id}` - obtener libro por id
-- `POST /books` - crear libro
-- `PUT /books/{id}` - actualizar libro
-- `DELETE /books/{id}` - eliminar libro
+- `GET /books/:id` - obtener un libro por id
 
-### endpoints carrito
-- `GET /cart/{userId}` - obtener carrito del usuario
-- `POST /cart/{userId}/items` - agregar item
-- `DELETE /cart/{userId}/items/{itemId}` - eliminar item
-- `DELETE /cart/{userId}` - limpiar carrito
-- `GET /cart/{userId}/total` - obtener total con comision
+**carrito**
+- `POST /cart` - agregar item al carrito
+- `GET /cart/user/:userId` - ver carrito del usuario
+- `DELETE /cart/:id` - eliminar item del carrito
 
-
-## api externa
-
-### google books api
-- **url base:** `https://www.googleapis.com/books/v1/`
-- **endpoint:** `GET /volumes?q={query}`
-- se usa para buscar libros externos
-- muestra titulo y autor
-- no requiere autenticacion
+**carrito**
+- `POST /cart` - agregar item al carrito
+- `GET /cart/user/:userId` - ver carrito del usuario
+- `DELETE /cart/:id` - eliminar item del carrito
 
 
-## base de datos
+## Tests Unitarios
 
-### postgresql (backend)
-- **libro:** id, titulo, autor, precio, categoria, imagen
-- **usuario:** id, nombre, email, password
-- **carrito_item:** id, user_id, book_id, cantidad, precio_unitario
+tenemos 8 tests que cubren las funcionalidades principales:
 
-### room (app)
-- **user:** id, name, email, password, profileImagePath
-
-
-## tests unitarios
-
-tenemos 10 tests en total:
-
-### LoginViewModelTest
+**LoginViewModelTest** (3 tests)
+- validacion de email vacio
 - validacion de password vacio
-- validacion de password con 8+ caracteres
+- validacion de password valido (8+ caracteres)
 
-### RegisterViewModelTest
+**RegisterViewModelTest** (3 tests)
 - validacion de nombre vacio
 - validacion de password vacio
-- validacion de confirmacion de password
+- validacion de passwords que no coinciden
 
-### BooksViewModelTest
-- busqueda por titulo
+**BooksViewModelTest** (2 tests)
+- busqueda de libros por titulo
 - filtrado por categoria
-- manejo de errores de conexion
-
-### ProfileViewModelTest
-- carga de datos del usuario
-- logout
 
 para correr los tests:
 ```bash
 ./gradlew test
 ```
-
-
-## apk firmado
-
-el apk esta firmado con un keystore para poder instalarlo en dispositivos.
-
-archivos:
-- `booksy.jks` - keystore
-- configuracion en `app/build.gradle.kts`
-
-para generar el apk:
-1. Build > Generate Signed Bundle / APK
-2. seleccionar APK
-3. usar el keystore configurado
-4. release
-
-
-## problemas que resolvimos
-
-1. **cleartext traffic no permitido**
-   agregamos network_security_config.xml para http en desarrollo
-
-2. **conexion con backend local**
-   usamos 10.0.2.2 en emulador para localhost
-
-3. **validacion de contraseñas**
-   cambiamos a minimo 8 caracteres en app y backend
-
-4. **dependencias de testing**
-   agregamos mockk, turbine para los tests
-
-
-## lo que aprendimos
-
-- arquitectura mvvm con viewmodel
-- integracion con spring boot y postgresql
-- consumo de apis con retrofit
-- testing unitario con mockk
-- navegacion con jetpack compose
-- manejo de estados con stateflow
-- implementacion de microservicios
-- persistencia con room y postgresql
