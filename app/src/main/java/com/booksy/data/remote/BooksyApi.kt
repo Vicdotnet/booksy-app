@@ -44,4 +44,11 @@ interface BooksyApi {
 
     @DELETE("api/cart/clear/{userId}")
     suspend fun clearCart(@Path("userId") userId: String): Response<String>
+
+    // orders endpoints
+    @POST("api/orders")
+    suspend fun createOrder(@Body orderRequest: OrderRequest): Response<OrderResponse>
+
+    @GET("api/orders/user/{userId}")
+    suspend fun getUserOrders(@Path("userId") userId: String): Response<List<Order>>
 }

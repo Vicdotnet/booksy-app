@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun CartScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToCheckout: () -> Unit,
     viewModel: CartViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -145,6 +146,23 @@ fun CartScreen(
                                     Spacer(modifier = Modifier.height(16.dp))
 
                                     Button(
+                                        onClick = onNavigateToCheckout,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(56.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.primary
+                                        )
+                                    ) {
+                                        Text(
+                                            "Ir a Pagar",
+                                            style = MaterialTheme.typography.titleMedium
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    OutlinedButton(
                                         onClick = {
                                             userId?.let {
                                                 viewModel.clearCart(it)

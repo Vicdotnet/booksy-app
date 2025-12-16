@@ -67,6 +67,9 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.4.0")
     implementation("com.google.accompanist:accompanist-permissions:0.32.0")
     implementation("com.google.android.material:material:1.9.0")
+    
+    // Google Play Services - Location
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 
 
     // Testing - JUnit

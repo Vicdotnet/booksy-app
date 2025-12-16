@@ -19,6 +19,17 @@ local.properties
 *.keystore
 keystore.properties
 
+# Release APK (demasiado grande)
+app/release/
+*.apk
+
+# Archivos innecesarios
+.idea/
+*.pdf
+*.png
+backend-code/
+preview/
+
 *.lnk
 
 *.url

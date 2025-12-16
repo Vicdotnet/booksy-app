@@ -11,10 +11,14 @@ import androidx.navigation.NavType
 import com.booksy.data.local.SessionManager
 import com.booksy.ui.screens.BookDetailScreen
 import com.booksy.ui.screens.CartScreen
+import com.booksy.ui.screens.CheckoutScreen
 import com.booksy.ui.screens.LoginScreen
+import com.booksy.ui.screens.OrderSuccessScreen
 import com.booksy.ui.screens.RegisterScreen
 import com.booksy.ui.screens.HomeScreen
 import com.booksy.ui.screens.ProfileScreen
+import com.booksy.viewmodel.CartViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -67,9 +71,49 @@ fun NavGraph(
         }
 
         composable(Screen.Cart.route) {
+            val cartViewModel: CartViewModel = viewModel()
+            val cartState by cartViewModel.uiState.collectAsState()
+            
             CartScreen(
                 onNavigateBack = {
                     navController.popBackStack()
+                },
+                onNavigateToCheckout = {
+                    navController.navigate(Screen.Checkout.route)
+                }
+            )
+        }
+
+        composable(Screen.Checkout.route) {
+            val parentEntry = remember(it) {
+                navController.getBackStackEntry(Screen.Cart.route)
+            }
+            val cartViewModel: CartViewModel = viewModel(parentEntry)
+            val cartState by cartViewModel.uiState.collectAsState()
+            
+            if (cartState is com.booksy.viewmodel.CartUiState.Success) {
+                val successState = cartState as com.booksy.viewmodel.CartUiState.Success
+                CheckoutScreen(
+                    cartItems = successState.items,
+                    total = successState.total.subtotal,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onOrderSuccess = {
+                        navController.navigate(Screen.OrderSuccess.route) {
+                            popUpTo(Screen.Home.route) { inclusive = false }
+                        }
+                    }
+                )
+            }
+        }
+
+        composable(Screen.OrderSuccess.route) {
+            OrderSuccessScreen(
+                onNavigateToHome = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
                 }
             )
         }
