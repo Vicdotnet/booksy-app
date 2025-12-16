@@ -23,6 +23,10 @@ la app se conecta a un backend en la nube (render) que maneja los libros y usuar
 - **filtros** - filtrar por categoria (ficcion, clasicos, poesia)
 - **detalle del libro** - ver sinopsis completa de cada libro
 - **carrito de compras** - agregar libros y ver el total
+- **proceso de compra** - checkout con formulario de envio y validacion
+- **integracion gps** - detectar ubicacion automatica para envio
+- **validacion de regiones** - usar api rest countries para validar regiones de chile
+- **animaciones** - procesamiento de pago y confirmacion con animaciones
 - **perfil de usuario** - cambiar foto de perfil con la camara
 - **cierre de sesion** - salir de la cuenta
 
@@ -36,6 +40,8 @@ la app se conecta a un backend en la nube (render) que maneja los libros y usuar
 - coil (cargar imagenes)
 - navigation compose
 - sharedpreferences (guardar sesion)
+- google play services location (gps)
+- rest countries api (validacion regiones)
 - junit + mockk (tests unitarios)
 
 ### Backend
@@ -75,8 +81,12 @@ la app se conecta a un backend en la nube (render) que maneja los libros y usuar
 6. toca un libro para ver su sinopsis completa
 7. agrega libros al carrito con el boton verde
 8. ve al carrito con el icono arriba a la derecha
-9. en perfil puedes cambiar tu foto
-10. cierra sesion cuando quieras
+9. toca "ir a pagar" para finalizar la compra
+10. llena el formulario de envio (usa gps si quieres)
+11. confirma la compra y espera la animacion
+12. veras mensaje de pago exitoso
+13. en perfil puedes cambiar tu foto con la camara
+14. cierra sesion cuando quieras
 
 
 ## Estructura del codigo
@@ -106,15 +116,19 @@ base url: `https://booksy-api-twu9.onrender.com`
 
 **libros**
 - `GET /books` - obtener todos los libros
-- `GET /books/:id` - obtener un libro por id
-
 **carrito**
 - `POST /cart` - agregar item al carrito
 - `GET /cart/user/:userId` - ver carrito del usuario
 - `DELETE /cart/:id` - eliminar item del carrito
+- `DELETE /cart/clear/:userId` - limpiar carrito
 
-**carrito**
-- `POST /cart` - agregar item al carrito
+**ordenes**
+- `POST /orders` - crear orden de compra
+- `GET /orders/user/:userId` - ver ordenes del usuario
+- `GET /orders/:id` - ver orden especifica
+
+**api externa**
+- `GET https://restcountries.com/v3.1/name/chile` - validar datos de chile
 - `GET /cart/user/:userId` - ver carrito del usuario
 - `DELETE /cart/:id` - eliminar item del carrito
 
@@ -137,7 +151,3 @@ tenemos 8 tests que cubren las funcionalidades principales:
 - busqueda de libros por titulo
 - filtrado por categoria
 
-para correr los tests:
-```bash
-./gradlew test
-```
